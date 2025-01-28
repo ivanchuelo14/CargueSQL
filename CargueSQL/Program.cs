@@ -11,7 +11,7 @@ class Program
     static void Main()
     {
         string filePath = @"C:\\WORK\\CompetenciasCargue.xlsx"; // Cambia esto a la ruta de tu archivo
-        string connectionString = "Data Source=COBOGLTW1130007;Initial Catalog=Correcol;User ID=sa;Password=Bogota.2024*; MultipleActiveResultSets=True; TrustServerCertificate=True"; // Ajusta tu cadena de conexión
+        string connectionString = "Data Source=COBOGLTW1130007;Initial Catalog=TalentScore;User ID=sa;Password=Bogota.2024*; MultipleActiveResultSets=True; TrustServerCertificate=True"; // Ajusta tu cadena de conexión
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
         using (var package = new ExcelPackage(new FileInfo(filePath)))
@@ -56,7 +56,7 @@ class Program
 
                 foreach (var competencia in competencias.Values)
                 {
-                    string insertQuery = @"INSERT INTO EmpleadosNom 
+                    string insertQuery = @"INSERT INTO CompetenciaPreDefinicionTs 
                         (CmPDNombre, CmPDDescripcion, CmPDComportamientos, CreateTime, UpdateTime, CreatedBy, UpdatedBy) 
                         VALUES (@Nombre, @Descripcion, @Comportamientos, GETDATE(), GETDATE(), 'Ivan Guerra', 'Ivan Guerra');";
 
