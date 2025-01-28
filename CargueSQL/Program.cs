@@ -10,7 +10,7 @@ class Program
 {
     static void Main()
     {
-        string filePath = @"C:\\WORK\\CompetenciasCargue.xlsx"; // Cambia esto a la ruta de tu archivo
+        string filePath = @"C:\\WORK\\Cargue_emp_nom.xlsx"; // Cambia esto a la ruta de tu archivo
         string connectionString = "Data Source=COBOGLTW1130007;Initial Catalog=Correcol;User ID=sa;Password=Bogota.2024*; MultipleActiveResultSets=True; TrustServerCertificate=True"; // Ajusta tu cadena de conexión
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -19,53 +19,71 @@ class Program
             ExcelWorksheet worksheet = package.Workbook.Worksheets[0]; // Obtener la primera hoja
             int rows = worksheet.Dimension.Rows;
 
-            // Diccionario para agrupar competencias y comportamientos
-            var competencias = new Dictionary<string, Competencia>();
-
-            // Procesar las filas del Excel
-            for (int row = 2; row <= rows; row++) // Saltar la fila de encabezados
-            {
-                var id = worksheet.Cells[row, 1].Value?.ToString();
-                var nombre = worksheet.Cells[row, 2].Value?.ToString();
-                var descripcion = worksheet.Cells[row, 3].Value?.ToString();
-                var comportamiento = worksheet.Cells[row, 4].Value?.ToString();
-
-                if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(nombre))
-                    continue;
-
-                if (!competencias.ContainsKey(id))
-                {
-                    competencias[id] = new Competencia
-                    {
-                        Nombre = nombre,
-                        Descripcion = descripcion,
-                        Comportamientos = new List<Comportamiento>()
-                    };
-                }
-
-                if (!string.IsNullOrEmpty(comportamiento))
-                {
-                    competencias[id].Comportamientos.Add(new Comportamiento { Nombre = comportamiento });
-                }
-            }
-
-            // Insertar en la base de datos
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
 
-                foreach (var competencia in competencias.Values)
+                for (int row = 2; row <= rows; row++) // Saltar la fila de encabezados
                 {
-                    string insertQuery = @"INSERT INTO EmpleadosNom 
-                        (CmPDNombre, CmPDDescripcion, CmPDComportamientos, CreateTime, UpdateTime, CreatedBy, UpdatedBy) 
-                        VALUES (@Nombre, @Descripcion, @Comportamientos, GETDATE(), GETDATE(), 'Ivan Guerra', 'Ivan Guerra');";
+                    var ap1_emp = worksheet.Cells[row, 1].Value?.ToString() ?? "";
+                    var ap2_emp = worksheet.Cells[row, 2].Value?.ToString() ?? "";
+                    var nom_emp = worksheet.Cells[row, 3].Value?.ToString() ?? "";
+                    var Completo = worksheet.Cells[row, 4].Value?.ToString() ?? "";
+                    var cod_emp = worksheet.Cells[row, 5].Value?.ToString() ?? "";
+
+                    // Validación y conversión de fechas (se usa la fecha mínima si es nula)
+                    var fec_nac = DateTime.TryParse(worksheet.Cells[row, 6].Value?.ToString(), out DateTime parsedFechaNacimiento)
+                                  ? (object)parsedFechaNacimiento
+                                : (object)DBNull.Value;
+
+                    var Genero = (worksheet.Cells[row, 7].Value?.ToString()) ?? "";
+                    var tel_res = (worksheet.Cells[row, 8].Value?.ToString()) ?? "";
+                    var tel_cel = (worksheet.Cells[row, 9].Value?.ToString()) ?? "";
+                    var Dir = (worksheet.Cells[row, 10].Value?.ToString()) ?? "";
+                    var e_mail = (worksheet.Cells[row, 11].Value?.ToString()) ?? "";
+                    var departamento = (worksheet.Cells[row, 12].Value?.ToString()) ?? "";
+                    var ciu_res = (worksheet.Cells[row, 13].Value?.ToString()) ?? "";
+                    var per_car = worksheet.Cells[row, 14].Value ?? 0;
+                    var CIVIL = (worksheet.Cells[row, 15].Value?.ToString()) ?? "";
+                    var nom_car = (worksheet.Cells[row, 16].Value?.ToString()) ?? "";
+                    var Nombre = (worksheet.Cells[row, 17].Value?.ToString()) ?? "";
+
+                    var fec_ing = DateTime.TryParse(worksheet.Cells[row, 18].Value?.ToString(), out DateTime parsedFechaIngreso)
+                                  ? (object)parsedFechaIngreso
+                                 : (object)DBNull.Value;
+
+                    var fec_egr = DateTime.TryParse(worksheet.Cells[row, 19].Value?.ToString(), out DateTime parsedFechaEgreso)
+                                  ? (object)parsedFechaEgreso
+                                 : (object)DBNull.Value;
+
+                    // Consulta SQL para insertar en EmpleadosNom
+                    string insertQuery = @"INSERT INTO EmpleadosNom (ap1_emp, ap2_emp, nom_emp, Completo, cod_emp, fec_nac, Genero, tel_res, tel_cel, Dir, e_mail, departamento, ciu_res, per_car, CIVIL, nom_car, Nombre, fec_ing, fec_egr) 
+                                   VALUES (@ap1_emp, @ap2_emp, @nom_emp, @Completo, @cod_emp, @fec_nac, @Genero, @tel_res, @tel_cel, @Dir, @e_mail, @departamento, @ciu_res, @per_car, @CIVIL, @nom_car, @Nombre, @fec_ing, @fec_egr)";
 
                     using (SqlCommand command = new SqlCommand(insertQuery, connection))
                     {
-                        command.Parameters.AddWithValue("@Nombre", competencia.Nombre ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@Descripcion", competencia.Descripcion ?? (object)DBNull.Value);
-                        command.Parameters.AddWithValue("@Comportamientos", JsonConvert.SerializeObject(competencia.Comportamientos));
+                        // Agregar parámetros al comando
+                        command.Parameters.AddWithValue("@ap1_emp", ap1_emp);
+                        command.Parameters.AddWithValue("@ap2_emp", ap2_emp);
+                        command.Parameters.AddWithValue("@nom_emp", nom_emp);
+                        command.Parameters.AddWithValue("@Completo", Completo);
+                        command.Parameters.AddWithValue("@cod_emp", cod_emp);
+                        command.Parameters.AddWithValue("@fec_nac", fec_nac);
+                        command.Parameters.AddWithValue("@Genero", Genero);
+                        command.Parameters.AddWithValue("@tel_res", tel_res);
+                        command.Parameters.AddWithValue("@tel_cel", tel_cel);
+                        command.Parameters.AddWithValue("@Dir", Dir);
+                        command.Parameters.AddWithValue("@e_mail", e_mail);
+                        command.Parameters.AddWithValue("@departamento", departamento);
+                        command.Parameters.AddWithValue("@ciu_res", ciu_res);
+                        command.Parameters.AddWithValue("@per_car", per_car);
+                        command.Parameters.AddWithValue("@CIVIL", CIVIL);
+                        command.Parameters.AddWithValue("@nom_car", nom_car);
+                        command.Parameters.AddWithValue("@Nombre", Nombre);
+                        command.Parameters.AddWithValue("@fec_ing", fec_ing);
+                        command.Parameters.AddWithValue("@fec_egr", fec_egr);
 
+                        // Ejecutar la consulta
                         command.ExecuteNonQuery();
                     }
                 }
@@ -73,6 +91,7 @@ class Program
 
             Console.WriteLine("Datos importados exitosamente.");
         }
+
     }
 
     public class Competencia
