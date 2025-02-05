@@ -10,7 +10,7 @@ class Program
 {
     static void Main()
     {
-        string filePath = @"C:\\WORK\\Cargue_emp_nom.xlsx"; // Cambia esto a la ruta de tu archivo
+        string filePath = @"C:\\WORK\\VistaNomina-29-11-2024.xlsx"; // Cambia esto a la ruta de tu archivo
         string connectionString = "Data Source=COBOGLTW1130007;Initial Catalog=Correcol;User ID=sa;Password=Bogota.2024*; MultipleActiveResultSets=True; TrustServerCertificate=True"; // Ajusta tu cadena de conexión
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
@@ -41,24 +41,26 @@ class Program
                     var tel_cel = (worksheet.Cells[row, 9].Value?.ToString()) ?? "";
                     var Dir = (worksheet.Cells[row, 10].Value?.ToString()) ?? "";
                     var e_mail = (worksheet.Cells[row, 11].Value?.ToString()) ?? "";
-                    var departamento = (worksheet.Cells[row, 12].Value?.ToString()) ?? "";
-                    var ciu_res = (worksheet.Cells[row, 13].Value?.ToString()) ?? "";
-                    var per_car = worksheet.Cells[row, 14].Value ?? 0;
-                    var CIVIL = (worksheet.Cells[row, 15].Value?.ToString()) ?? "";
-                    var nom_car = (worksheet.Cells[row, 16].Value?.ToString()) ?? "";
-                    var Nombre = (worksheet.Cells[row, 17].Value?.ToString()) ?? "";
+                    var e_mail_alt = (worksheet.Cells[row, 12].Value?.ToString()) ?? "";
+                    var departamento = (worksheet.Cells[row, 13].Value?.ToString()) ?? "";
+                    var ciu_res = (worksheet.Cells[row, 14].Value?.ToString()) ?? "";
+                    var per_car = worksheet.Cells[row, 15].Value ?? 0;
+                    var CIVIL = (worksheet.Cells[row, 16].Value?.ToString()) ?? "";
+                    var nom_car = (worksheet.Cells[row, 17].Value?.ToString()) ?? "";
+                    var ger_cod = (worksheet.Cells[row, 18].Value?.ToString()) ?? "";
+                    var ger_nom = (worksheet.Cells[row, 19].Value?.ToString()) ?? "";
 
-                    var fec_ing = DateTime.TryParse(worksheet.Cells[row, 18].Value?.ToString(), out DateTime parsedFechaIngreso)
+                    var fec_ing = DateTime.TryParse(worksheet.Cells[row, 20].Value?.ToString(), out DateTime parsedFechaIngreso)
                                   ? (object)parsedFechaIngreso
                                  : (object)DBNull.Value;
 
-                    var fec_egr = DateTime.TryParse(worksheet.Cells[row, 19].Value?.ToString(), out DateTime parsedFechaEgreso)
+                    var fec_egr = DateTime.TryParse(worksheet.Cells[row, 21].Value?.ToString(), out DateTime parsedFechaEgreso)
                                   ? (object)parsedFechaEgreso
                                  : (object)DBNull.Value;
 
                     // Consulta SQL para insertar en EmpleadosNom
-                    string insertQuery = @"INSERT INTO EmpleadosNom (ap1_emp, ap2_emp, nom_emp, Completo, cod_emp, fec_nac, Genero, tel_res, tel_cel, Dir, e_mail, departamento, ciu_res, per_car, CIVIL, nom_car, Nombre, fec_ing, fec_egr) 
-                                   VALUES (@ap1_emp, @ap2_emp, @nom_emp, @Completo, @cod_emp, @fec_nac, @Genero, @tel_res, @tel_cel, @Dir, @e_mail, @departamento, @ciu_res, @per_car, @CIVIL, @nom_car, @Nombre, @fec_ing, @fec_egr)";
+                    string insertQuery = @"INSERT INTO EmpleadosNom (ap1_emp, ap2_emp, nom_emp, Completo, cod_emp, fec_nac, Genero, tel_res, tel_cel, Dir, e_mail,e_mail_alt, departamento, ciu_res, per_car, CIVIL, nom_car, ger_cod, ger_nom, fec_ing, fec_egr) 
+                                   VALUES (@ap1_emp, @ap2_emp, @nom_emp, @Completo, @cod_emp, @fec_nac, @Genero, @tel_res, @tel_cel, @Dir, @e_mail,@e_mail_alt, @departamento, @ciu_res, @per_car, @CIVIL, @nom_car, @ger_cod,@ger_nom, @fec_ing, @fec_egr)";
 
                     using (SqlCommand command = new SqlCommand(insertQuery, connection))
                     {
@@ -74,12 +76,14 @@ class Program
                         command.Parameters.AddWithValue("@tel_cel", tel_cel);
                         command.Parameters.AddWithValue("@Dir", Dir);
                         command.Parameters.AddWithValue("@e_mail", e_mail);
+                        command.Parameters.AddWithValue("@e_mail_alt", e_mail_alt);
                         command.Parameters.AddWithValue("@departamento", departamento);
                         command.Parameters.AddWithValue("@ciu_res", ciu_res);
                         command.Parameters.AddWithValue("@per_car", per_car);
                         command.Parameters.AddWithValue("@CIVIL", CIVIL);
                         command.Parameters.AddWithValue("@nom_car", nom_car);
-                        command.Parameters.AddWithValue("@Nombre", Nombre);
+                        command.Parameters.AddWithValue("@ger_nom", ger_nom);
+                        command.Parameters.AddWithValue("@ger_cod", ger_cod);
                         command.Parameters.AddWithValue("@fec_ing", fec_ing);
                         command.Parameters.AddWithValue("@fec_egr", fec_egr);
 
